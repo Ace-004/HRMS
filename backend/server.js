@@ -7,6 +7,7 @@ const connectDB=require('./config/db');
 //custom modules
 const authRoutes=require('./routes/authRoutes');
 const departmentRoutes=require('./routes/departmentRoutes');
+const employeeRoutes=require('./routes/employeeRoutes');
 
 const app=express();
 app.use(cors());
@@ -19,6 +20,7 @@ app.use('/',(req,res,next)=>{
 })
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/departments',departmentRoutes);
+app.use('/api/v1/employees',employeeRoutes);
 
 const PORT=process.env.PORT || 8000;
 const startServer=async()=>{
