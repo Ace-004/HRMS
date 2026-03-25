@@ -27,7 +27,7 @@ const getAllLeaves=async(req,res)=>{
 }
 
 const getEmployeeLeaves=async(req,res)=>{
-  const employeeId=req.params.id;
+  const employeeId=req.params.id || req.user ;
   try {
     const leave=await Leave.find({employeeId});
     res.status(200).json({success:true,data:leave})
