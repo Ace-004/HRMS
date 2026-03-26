@@ -22,6 +22,8 @@ app.use('/',(req,res,next)=>{
   console.log('entered root ');
   next();
 })
+
+//routes
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/departments',departmentRoutes);
 app.use('/api/v1/employees',employeeRoutes);
