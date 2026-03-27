@@ -22,6 +22,10 @@ const userSchema=new mongoose.Schema({
   isActive:{
     type:Boolean,
     default:true,
+  },
+  profileCompleted:{
+    type:Boolean,
+    default:false,
   }
 },{timestamps:true});
 userSchema.pre('save',async function (next) {

@@ -1,9 +1,10 @@
 const express=require('express');
 const authController=require('../controllers/authController');
+const verifyRole=require('../middleware/roleMiddleware');
 
 const router=express.Router();
 
 router.post('/login',authController.postLogin);
-router.post('/register',authController.postRegister);
+router.post('/register',verifyRole(['admin','hr']),authController.postRegister);
 
 module.exports=router;

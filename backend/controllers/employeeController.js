@@ -1,22 +1,33 @@
 const Employee=require('../models/Employee');
 const User=require('../models/User');
+const Department=require('../models/Department');
+const { generateToken } = require('../utils/generateToken');
 
 const createEmployeeProfile=async(req,res)=>{
-  const {userId,firstName,lastName,designation,salary,department}=req.body;
+  const {firstName,lastName,designation,salary,department}=req.body;
   try {
-    const user=await User.findById(userId);
+    const user=await User.findById(req.user);
     if(!user)return res.status(404).json({success:false,message:"user not found"});
-    const employee=await Employee.findOne({User:userId});
-    if(employee)return res.status(400).json({message:"employee already exists"});
+    const employee=await Employee.findOne({User:req.user});
+    if(employee)return res.status(400).json({success:false,message:"employee already exists"});
+    department=department.toLowerCase().trim();
+    const departmentExists=await Department.findOne({name:department});
+    if(!departmentExists)return res.status(404).json({success:false,message:"department don't exist"});
     const newEmployee=new Employee({
-      User:userId,
+      User:req.user,
       firstName,
       lastName,
-      Department:department,
+      Department:departmentExists,
       designation,
       salary
     });
     await newEmployee.save();
+    const updatedUser=await User.findByIdAndUpdate(req.user,{profileCompleted:true},{new:true,runValidators:true});
+    // const payload={
+    //   userId:updatedUser._id,
+    //   role:updatedUser.role
+    // }
+    // const token=generateToken(payload);
     res.status(201).json({success:true,data:newEmployee});
   } catch (error) {
     res.status(500).json({success:false,message:error.message});
