@@ -34,10 +34,13 @@ API.interceptors.response.use(
 
 // Auth
 export const login = (data) => API.post('/auth/login', data);
+export const loginAdmin = (data) => API.post('/auth/login/admin', data);
+export const loginHr = (data) => API.post('/auth/login/hr', data);
 export const register = (data) => API.post('/auth/register', data);
 
 // Departments
 export const getDepartments = () => API.get('/departments');
+export const getDepartmentById= (id) => API.get(`/department/${id}`)
 export const createDepartment = (data) => API.post('/departments/create', data);
 
 // Employees
