@@ -1,11 +1,47 @@
 const User=require('../models/User');
 const bcrypt=require('bcryptjs');
 const {generateToken} = require('../utils/generateToken');
+const verifyRole = require('../middleware/roleMiddleware');
 
 const postLogin=async(req,res)=>{
   const {email,password}=req.body;
   try {
-    const user=await User.findOne({email});
+    const user=await User.findOne({email,role:'employee'});
+    if(!user) return res.status(404).json({success:false,message:"employee not found"});
+    // if(user.role!=='employee')return res.status(400)
+    const pass=await bcrypt.compare(password,user.password);
+    if(!pass)return res.status(400).json({success:false,message:"invalid credentials"});
+    const payload={
+      userId:user._id,
+      role:user.role
+    }
+    const token=generateToken(payload);
+    res.status(200).json({success:true,data:user,token});
+  } catch (error) {
+    res.status(500).json({success:false,message:error.message});
+  }
+};
+const postLoginHr=async(req,res)=>{
+  const {email,password}=req.body;
+  try {
+    const user=await User.findOne({email,role:'hr'});
+    if(!user) return res.status(404).json({success:false,message:"hr not found"});
+    const pass=await bcrypt.compare(password,user.password);
+    if(!pass)return res.status(400).json({success:false,message:"invalid credentials"});
+    const payload={
+      userId:user._id,
+      role:user.role
+    }
+    const token=generateToken(payload);
+    res.status(200).json({success:true,data:user,token});
+  } catch (error) {
+    res.status(500).json({success:false,message:error.message});
+  }
+};
+const postLoginAdmin=async(req,res)=>{
+  const {email,password}=req.body;
+  try {
+    const user=await User.findOne({email,role:'admin'});
     if(!user) return res.status(404).json({success:false,message:"user not found"});
     const pass=await bcrypt.compare(password,user.password);
     if(!pass)return res.status(400).json({success:false,message:"invalid credentials"});
@@ -43,5 +79,7 @@ const postRegister=async(req,res)=>{
 
 module.exports={
   postLogin,
+  postLoginHr,
+  postLoginAdmin,
   postRegister,
 }
