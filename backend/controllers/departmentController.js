@@ -1,4 +1,5 @@
 const Department=require('../models/Department');
+const Employee=require('../models/Employee');
 
 const createDepartment=async(req,res)=>{
   const {name,description}=req.body;
@@ -38,8 +39,27 @@ const getDepartmentById=async(req,res)=>{
   }
 };
 
+const deleteDepartment = async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const employeesInDept = await Employee.findOne({ Department: _id });
+    if (employeesInDept) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Cannot delete department because employees are currently assigned to it." 
+      });
+    }
+    const department = await Department.findByIdAndDelete(_id);
+    if (!department) return res.status(404).json({ success: false, message: "Department not found" });
+    res.status(200).json({ success: true, message: "Department deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports={
   createDepartment,
   getAllDepartments,
   getDepartmentById,
+  deleteDepartment,
 }

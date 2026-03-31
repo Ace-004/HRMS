@@ -10,8 +10,8 @@ const createEmployeeProfile=async(req,res)=>{
     if(!user)return res.status(404).json({success:false,message:"user not found"});
     const employee=await Employee.findOne({User:req.user});
     if(employee)return res.status(400).json({success:false,message:"employee already exists"});
-    department=department.toLowerCase().trim();
-    const departmentExists=await Department.findOne({name:department});
+    const departmentName=department.toLowerCase().trim();
+    const departmentExists=await Department.findOne({name:departmentName});
     if(!departmentExists)return res.status(404).json({success:false,message:"department don't exist"});
     const newEmployee=new Employee({
       User:req.user,
@@ -56,8 +56,63 @@ const getEmployeeById=async(req,res)=>{
   }
 }
 
+const updateEmployeeProfile = async (req, res) => {
+  const { firstName, lastName } = req.body;
+  try {
+    const employee = await Employee.findOne({ User: req.user });
+    if (!employee) return res.status(404).json({ success: false, message: "Employee profile not found" });
+
+    if (firstName) employee.firstName = firstName;
+    if (lastName !== undefined) employee.lastName = lastName;
+
+    await employee.save();
+    res.status(200).json({ success: true, data: employee, message: "Profile updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const deleteEmployee = async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const employee = await Employee.findById(_id);
+    if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
+
+    // Hard delete associated User account
+    await User.findByIdAndDelete(employee.User);
+    
+    // Delete the Employee profile
+    await Employee.findByIdAndDelete(_id);
+    
+    // Cascade delete related records
+    const Leave = require('../models/Leave');
+    const Attendance = require('../models/Attendance');
+    const Payroll = require('../models/Payroll');
+    await Leave.deleteMany({ employeeId: _id });
+    await Attendance.deleteMany({ employeeId: _id });
+    await Payroll.deleteMany({ employeeId: _id });
+
+    res.status(200).json({ success: true, message: "Employee and associated records deleted permanently." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getMyProfile = async (req, res) => {
+  try {
+    const employee = await Employee.findOne({ User: req.user }).populate('Department', 'name');
+    if (!employee) return res.status(404).json({ success: false, message: "Employee profile not found" });
+    res.status(200).json({ success: true, data: employee });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports={
   createEmployeeProfile,
   getAllEmployees,
-  getEmployeeById
+  getEmployeeById,
+  updateEmployeeProfile,
+  deleteEmployee,
+  getMyProfile
 }

@@ -4,7 +4,7 @@ const { verifyToken } = require('../utils/verifyToken');
 const protected=async(req,res,next)=>{
   const authHeader=req.headers.authorization;
   if(!authHeader)return res.status(400).json({success:false,message:"no token"});
-  if(authHeader.split(' ')[0]!=='Bearer')return res.status(400).json({success:true,message:"invalid token format"});
+  if(authHeader.split(' ')[0]!=='Bearer')return res.status(400).json({success:false,message:"invalid token format"});
   const header=authHeader.split(' ')[1];
   try {
     const decoded=verifyToken(header);

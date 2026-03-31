@@ -15,7 +15,7 @@ const employeeSchema=new mongoose.Schema({
   Department:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Department",
-    require:true,
+    required:true,
   },
   designation:{
     type:String,

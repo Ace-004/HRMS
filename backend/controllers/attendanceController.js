@@ -76,7 +76,18 @@ const checkOut = async (req, res) => {
   }
 };
 
+const getEmployeeAttendance = async (req, res) => {
+  const employeeId = req.params.id;
+  try {
+    const records = await Attendance.find({ employeeId }).sort({ date: -1 });
+    res.status(200).json({ success: true, data: records });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   checkIn,
   checkOut,
+  getEmployeeAttendance,
 };

@@ -1,16 +1,41 @@
-# React + Vite
+# HRMS Frontend - Group Project (Vite + React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend dashboard for the Human Resource Management System.
 
-Currently, two official plugins are available:
+## 📡 API Integration (Crucial)
+To communicate with the backend, all developers MUST use the centralized API service.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Location**: `src/services/api.js`
 
-## React Compiler
+### Why use it?
+- **Auto-Auth**: It automatically grabs the JWT token from `localStorage` and injects it into every request.
+- **Auto-Logout**: If a user's session expires (401 error), the interceptor automatically logs them out.
+- **Simplified Data**: It unwraps the Axios response so you receive the backend's data object directly.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Usage Example:
+```javascript
+import { getEmployees } from './services/api';
 
-## Expanding the ESLint configuration
+const MyComponent = () => {
+    useEffect(() => {
+        const fetchAll = async () => {
+            try {
+                const response = await getEmployees();
+                if(response.success) {
+                    console.log(response.data); // Array of employees!
+                }
+            } catch (err) {
+                console.error("Failed to fetch employees", err);
+            }
+        };
+        fetchAll();
+    }, []);
+}
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Setup
+1.  Run `npm install`
+2.  Install Axios: `npm install axios`
+3.  Run `npm run dev`
+
+**Developed by: Ayush Rana** 🚀

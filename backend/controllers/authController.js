@@ -57,13 +57,14 @@ const postLoginAdmin=async(req,res)=>{
 };
 
 const postRegister=async(req,res)=>{
-  const {email,password}=req.body;
+  const {email,password,role}=req.body;
   try {
     const user=await User.findOne({email});
     if(user)return res.status(400).json({success:false,message:"email already registered"});
     const newUser = new User({
       email,
       password,
+      role
     });
     await newUser.save();
     const payload={
