@@ -1,4 +1,4 @@
-const Announcement = require('../models/Announcement');
+const Announcement = require("../models/Announcement");
 
 const createAnnouncement = async (req, res) => {
   const { title, content, targetRole } = req.body;
@@ -7,7 +7,7 @@ const createAnnouncement = async (req, res) => {
       title,
       content,
       targetRole,
-      postedBy: req.user
+      postedBy: req.user,
     });
     await announcement.save();
     res.status(201).json({ success: true, data: announcement });
@@ -38,5 +38,5 @@ const deleteAnnouncement = async (req, res) => {
 module.exports = {
   createAnnouncement,
   getAllAnnouncements,
-  deleteAnnouncement
+  deleteAnnouncement,
 };

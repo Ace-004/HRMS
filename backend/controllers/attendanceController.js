@@ -2,10 +2,8 @@ const Attendance = require("../models/Attendance");
 const Leave = require("../models/Leave");
 const User = require("../models/User");
 const Employee = require("../models/Employee");
-// const {checkInTime,checkOutTime,hours}=require('../utils/attendanceTime')
 
 const checkIn = async (req, res) => {
-  // const userId=req.params.id;
   try {
     const employee = await Employee.findOne({ User: req.user });
     if (!employee)
@@ -50,19 +48,15 @@ const checkOut = async (req, res) => {
       date: today,
     });
     if (!attendance)
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "no check-In record found for today",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "no check-In record found for today",
+      });
     if (attendance.checkOut)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "check-out already marked for today",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "check-out already marked for today",
+      });
     attendance.checkOut = new Date();
     const hours = (
       (attendance.checkOut - attendance.checkIn) /
