@@ -1,8 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { getEmployees, getAllLeaves, getAnnouncements } from '../../services/api';
+import React, { useState, useEffect } from "react";
+import {
+  getEmployees,
+  getAllLeaves,
+  getAnnouncements,
+} from "../../services/api";
+import { UsersIcon, ClockIcon, MegaphoneIcon } from "../../components/ui/Icons";
 
 const HRDashboard = () => {
-  const [stats, setStats] = useState({ employees: 0, pendingLeaves: 0, announcements: 0 });
+  const [stats, setStats] = useState({
+    employees: 0,
+    pendingLeaves: 0,
+    announcements: 0,
+  });
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
 
   useEffect(() => {
@@ -15,13 +24,21 @@ const HRDashboard = () => {
         ]);
 
         setStats({
-          employees: empRes.status === 'fulfilled' && empRes.value.success ? empRes.value.data.length : 0,
-          pendingLeaves: leaveRes.status === 'fulfilled' && leaveRes.value.success
-            ? leaveRes.value.data.filter(l => l.status === 'pending').length : 0,
-          announcements: annRes.status === 'fulfilled' && annRes.value.success ? annRes.value.data.length : 0,
+          employees:
+            empRes.status === "fulfilled" && empRes.value.success
+              ? empRes.value.data.length
+              : 0,
+          pendingLeaves:
+            leaveRes.status === "fulfilled" && leaveRes.value.success
+              ? leaveRes.value.data.filter((l) => l.status === "pending").length
+              : 0,
+          announcements:
+            annRes.status === "fulfilled" && annRes.value.success
+              ? annRes.value.data.length
+              : 0,
         });
 
-        if (annRes.status === 'fulfilled' && annRes.value.success) {
+        if (annRes.status === "fulfilled" && annRes.value.success) {
           setRecentAnnouncements(annRes.value.data.slice(0, 3));
         }
       } catch (err) {
@@ -42,21 +59,27 @@ const HRDashboard = () => {
 
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon blue">👥</div>
+          <div className="stat-icon blue">
+            <UsersIcon size={22} />
+          </div>
           <div className="stat-info">
             <div className="value">{stats.employees}</div>
             <div className="label">Total Employees</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon orange">⏳</div>
+          <div className="stat-icon orange">
+            <ClockIcon size={22} />
+          </div>
           <div className="stat-info">
             <div className="value">{stats.pendingLeaves}</div>
             <div className="label">Pending Leaves</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon green">📢</div>
+          <div className="stat-icon green">
+            <MegaphoneIcon size={22} />
+          </div>
           <div className="stat-info">
             <div className="value">{stats.announcements}</div>
             <div className="label">Announcements</div>
@@ -65,10 +88,20 @@ const HRDashboard = () => {
       </div>
 
       <div className="card">
-        <h3 style={{ fontWeight: 700, color: 'var(--text-dark)', marginBottom: '1rem' }}>Recent Announcements</h3>
+        <h3
+          style={{
+            fontWeight: 700,
+            color: "var(--text-dark)",
+            marginBottom: "1rem",
+          }}
+        >
+          Recent Announcements
+        </h3>
         {recentAnnouncements.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">📢</div>
+            <div className="icon">
+              <MegaphoneIcon size={34} />
+            </div>
             <p>No announcements yet</p>
           </div>
         ) : (
@@ -78,7 +111,9 @@ const HRDashboard = () => {
                 <h4>{ann.title}</h4>
                 <p>{ann.content}</p>
               </div>
-              <span className="announcement-date">{new Date(ann.createdAt).toLocaleDateString()}</span>
+              <span className="announcement-date">
+                {new Date(ann.createdAt).toLocaleDateString()}
+              </span>
             </div>
           ))
         )}

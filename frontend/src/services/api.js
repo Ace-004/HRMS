@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL:import.meta.BACKEND_API_ARL || 'http://localhost:8000/api/v1',
 });
 
 // Request Interceptor: Inject JWT token

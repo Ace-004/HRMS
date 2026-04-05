@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { getEmployees, deleteEmployee } from '../../services/api';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { getEmployees, deleteEmployee } from "../../services/api";
+import { UsersIcon, PlusIcon } from "../../components/ui/Icons";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 const EmployeeList = () => {
   const { user } = useAuth();
@@ -11,6 +13,7 @@ const EmployeeList = () => {
   const navigate = useNavigate();
 
   const fetchEmployees = async () => {
+    setLoading(true);
     try {
       const res = await getEmployees();
       if (res.success) setEmployees(res.data);
@@ -21,15 +24,22 @@ const EmployeeList = () => {
     }
   };
 
-  useEffect(() => { fetchEmployees(); }, []);
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to permanently delete the profile for ${name}? This will also delete their login account and all related records.`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete the profile for ${name}? This will also delete their login account and all related records.`,
+      )
+    )
+      return;
     try {
       const res = await deleteEmployee(id);
       if (res.success) fetchEmployees();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete employee');
+      alert(err.response?.data?.message || "Failed to delete employee");
     }
   };
 
@@ -40,24 +50,31 @@ const EmployeeList = () => {
           <h1>Employees</h1>
           <p>Manage all employee profiles</p>
         </div>
-        {role === 'admin' && (
-          <button className="btn btn-primary" onClick={() => navigate('/register')}>
-            + Register User
+        {role === "admin" && (
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/register")}
+          >
+            <PlusIcon size={16} /> Register User
           </button>
         )}
       </div>
 
       <div className="card">
         {loading ? (
-          <div className="empty-state"><p>Loading...</p></div>
+          <div className="empty-state">
+            <LoadingSpinner label="Loading employees..." size={18} />
+          </div>
         ) : employees.length === 0 ? (
           <div className="empty-state">
-            <div className="icon">👥</div>
+            <div className="icon">
+              <UsersIcon size={34} />
+            </div>
             <p>No employee profiles found. Create one to get started.</p>
           </div>
         ) : (
-          <div className="table-wrapper">
-            <table>
+          <div className="table-wrapper employee-table-wrapper">
+            <table className="employee-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -72,31 +89,59 @@ const EmployeeList = () => {
               <tbody>
                 {employees.map((emp) => (
                   <tr key={emp._id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-dark)' }}>
-                      {emp.firstName || '—'} {emp.lastName || ''}
+                    <td
+                      data-label="Name"
+                      style={{ fontWeight: 600, color: "var(--text-dark)" }}
+                    >
+                      {emp.firstName || "—"} {emp.lastName || ""}
                     </td>
-                    <td>{emp.User?.email || emp.userId?.email || '—'}</td>
-                    <td>{emp.Department?.name || emp.departmentId?.name || '—'}</td>
-                    <td>{emp.designation || '—'}</td>
-                    <td>
-                      <span className={`badge badge-${emp.User?.role || emp.userId?.role || 'employee'}`}>
-                        {emp.User?.role || emp.userId?.role || 'employee'}
+                    <td data-label="Email" className="employee-email-cell">
+                      {emp.User?.email || emp.userId?.email || "—"}
+                    </td>
+                    <td data-label="Department">
+                      {emp.Department?.name || emp.departmentId?.name || "—"}
+                    </td>
+                    <td data-label="Designation">{emp.designation || "—"}</td>
+                    <td data-label="Role">
+                      <span
+                        className={`badge badge-${emp.User?.role || emp.userId?.role || "employee"}`}
+                      >
+                        {emp.User?.role || emp.userId?.role || "employee"}
                       </span>
                     </td>
-                    <td>
-                      <span className={`badge ${(emp.User?.isActive || emp.userId?.isActive) ? 'badge-active' : 'badge-inactive'}`}>
-                        {(emp.User?.isActive || emp.userId?.isActive) ? 'Active' : 'Inactive'}
+                    <td data-label="Status">
+                      <span
+                        className={`badge ${emp.User?.isActive || emp.userId?.isActive ? "badge-active" : "badge-inactive"}`}
+                      >
+                        {emp.User?.isActive || emp.userId?.isActive
+                          ? "Active"
+                          : "Inactive"}
                       </span>
                     </td>
-                    <td style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/employees/${emp._id}`)}>
+                    <td
+                      data-label="Actions"
+                      style={{
+                        display: "flex",
+                        gap: "0.4rem",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => navigate(`/employees/${emp._id}`)}
+                      >
                         View
                       </button>
-                      {role === 'admin' && (
-                        <button 
-                          className="btn btn-ghost btn-sm" 
-                          style={{ color: 'var(--accent-red)' }} 
-                          onClick={() => handleDelete(emp._id, `${emp.firstName} ${emp.lastName}`)}
+                      {role === "admin" && (
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          style={{ color: "var(--accent-red)" }}
+                          onClick={() =>
+                            handleDelete(
+                              emp._id,
+                              `${emp.firstName} ${emp.lastName}`,
+                            )
+                          }
                         >
                           Delete
                         </button>
