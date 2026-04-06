@@ -17,7 +17,6 @@ const CompleteProfile = () => {
     lastName: "",
     designation: "",
     department: "",
-    salary: "",
   });
 
   useEffect(() => {
@@ -131,16 +130,6 @@ const CompleteProfile = () => {
                 required
               />
             )}
-          </div>
-          <div className="form-group">
-            <label>Salary</label>
-            <input
-              name="salary"
-              type="number"
-              value={form.salary}
-              onChange={handleChange}
-              placeholder="50000"
-            />
           </div>
           <button
             type="submit"

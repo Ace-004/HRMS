@@ -3,7 +3,8 @@ const User = require("../models/User");
 const Department = require("../models/Department");
 
 const createEmployeeProfile = async (req, res) => {
-  const { firstName, lastName, designation, salary, department } = req.body;
+  const { firstName, lastName, designation, department } = req.body;
+  const requestedSalary = req.body.salary;
   try {
     const user = await User.findById(req.user);
     if (!user)
@@ -21,14 +22,42 @@ const createEmployeeProfile = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "department don't exist" });
-    const newEmployee = new Employee({
+    if (
+      req.role === "employee" &&
+      requestedSalary !== undefined &&
+      requestedSalary !== null &&
+      requestedSalary !== ""
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "employees are not allowed to set salary",
+      });
+    }
+
+    const newEmployeePayload = {
       User: req.user,
       firstName,
       lastName,
       Department: departmentExists,
       designation,
-      salary,
-    });
+    };
+
+    if (
+      req.role !== "employee" &&
+      requestedSalary !== undefined &&
+      requestedSalary !== null &&
+      requestedSalary !== ""
+    ) {
+      const parsedSalary = Number(requestedSalary);
+      if (!Number.isFinite(parsedSalary) || parsedSalary < 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "salary must be a valid number" });
+      }
+      newEmployeePayload.salary = parsedSalary;
+    }
+
+    const newEmployee = new Employee(newEmployeePayload);
     await newEmployee.save();
     const updatedUser = await User.findByIdAndUpdate(
       req.user,
@@ -57,13 +86,15 @@ const getAllEmployees = async (req, res) => {
 
 const getEmployeeById = async (req, res) => {
   const _id = req.params.id;
-  if (req.role !== "admin" && req.user !== _id)
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "forbidden : you don't have permission",
-      });
+  console.log(_id);
+  // if ((req.role !== "admin" || req.role!=='hr') && req.user !== _id)
+  // if (req.user !== _id)
+  //   return res
+  //     .status(403)
+  //     .json({
+  //       success: false,
+  //       message: "forbidden : you don't have permission",
+  //     });
   try {
     const employee = await Employee.findById(_id);
     if (!employee)
@@ -89,13 +120,11 @@ const updateEmployeeProfile = async (req, res) => {
     if (lastName !== undefined) employee.lastName = lastName;
 
     await employee.save();
-    res
-      .status(200)
-      .json({
-        success: true,
-        data: employee,
-        message: "Profile updated successfully",
-      });
+    res.status(200).json({
+      success: true,
+      data: employee,
+      message: "Profile updated successfully",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -124,12 +153,10 @@ const deleteEmployee = async (req, res) => {
     await Attendance.deleteMany({ employeeId: _id });
     await Payroll.deleteMany({ employeeId: _id });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Employee and associated records deleted permanently.",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Employee and associated records deleted permanently.",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
