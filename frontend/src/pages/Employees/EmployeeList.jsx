@@ -4,12 +4,16 @@ import { useAuth } from "../../context/AuthContext";
 import { getEmployees, deleteEmployee } from "../../services/api";
 import { UsersIcon, PlusIcon } from "../../components/ui/Icons";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import { toast } from "react-toastify";
 
 const EmployeeList = () => {
   const { user } = useAuth();
   const role = user?.role;
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmEmployee, setConfirmEmployee] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const navigate = useNavigate();
 
   const fetchEmployees = async () => {
@@ -28,18 +32,20 @@ const EmployeeList = () => {
     fetchEmployees();
   }, []);
 
-  const handleDelete = async (id, name) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to permanently delete the profile for ${name}? This will also delete their login account and all related records.`,
-      )
-    )
-      return;
+  const handleDelete = async () => {
+    if (!confirmEmployee?._id) return;
+    setDeleteLoading(true);
     try {
-      const res = await deleteEmployee(id);
-      if (res.success) fetchEmployees();
+      const res = await deleteEmployee(confirmEmployee._id);
+      if (res.success) {
+        toast.success("Employee deleted successfully");
+        fetchEmployees();
+        setConfirmEmployee(null);
+      }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete employee");
+      toast.error(err.response?.data?.message || "Failed to delete employee");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -137,10 +143,10 @@ const EmployeeList = () => {
                           className="btn btn-ghost btn-sm"
                           style={{ color: "var(--accent-red)" }}
                           onClick={() =>
-                            handleDelete(
-                              emp._id,
-                              `${emp.firstName} ${emp.lastName}`,
-                            )
+                            setConfirmEmployee({
+                              _id: emp._id,
+                              name: `${emp.firstName} ${emp.lastName}`.trim(),
+                            })
                           }
                         >
                           Delete
@@ -154,6 +160,17 @@ const EmployeeList = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmEmployee)}
+        title="Delete Employee"
+        message={`Are you sure you want to permanently delete the profile for ${confirmEmployee?.name || "this employee"}? This will also delete their login account and all related records.`}
+        confirmText="Delete"
+        confirmVariant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmEmployee(null)}
+      />
     </>
   );
 };

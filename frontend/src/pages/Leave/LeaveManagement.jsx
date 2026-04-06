@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAllLeaves, updateLeaveStatus } from "../../services/api";
 import { ClipboardIcon } from "../../components/ui/Icons";
+import { toast } from "react-toastify";
 
 const LeaveManagement = () => {
   const [leaves, setLeaves] = useState([]);
@@ -21,9 +22,12 @@ const LeaveManagement = () => {
   const handleAction = async (id, status) => {
     try {
       await updateLeaveStatus(id, status);
+      toast.success(`Leave ${status} successfully`);
       fetchLeaves();
     } catch (err) {
-      console.error(err);
+      toast.error(
+        err.response?.data?.message || "Failed to update leave status",
+      );
     }
   };
 

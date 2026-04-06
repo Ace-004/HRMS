@@ -3,31 +3,28 @@ import Layout from "../components/Layout";
 import { registerUser } from "../services/api";
 import { EyeIcon, EyeOffIcon } from "../components/ui/Icons";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("employee");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
     try {
       const res = await registerUser({ email, password, role });
       if (res.success) {
-        setSuccess(`User "${email}" registered as ${role} successfully!`);
+        toast.success(`User "${email}" registered as ${role} successfully!`);
         setEmail("");
         setPassword("");
         setRole("employee");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      toast.error(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -43,9 +40,6 @@ const Register = () => {
       </div>
 
       <div className="card" style={{ maxWidth: "480px" }}>
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
-
         <form onSubmit={handleRegister}>
           <div className="form-group">
             <label>Email Address</label>

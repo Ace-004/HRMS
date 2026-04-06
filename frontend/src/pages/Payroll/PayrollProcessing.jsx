@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getMyPayroll, createPayroll, getEmployees } from "../../services/api";
 import { DollarIcon, PlusIcon } from "../../components/ui/Icons";
+import { toast } from "react-toastify";
 
 const PayrollProcessing = () => {
   const { user } = useAuth();
   const [records, setRecords] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const isManager = user?.role === "admin" || user?.role === "hr";
 
   const [form, setForm] = useState({
@@ -19,7 +18,6 @@ const PayrollProcessing = () => {
     basicPay: "",
     hra: "",
     deductions: "",
-    netSalary: "",
   });
 
   const months = [
@@ -60,8 +58,6 @@ const PayrollProcessing = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     try {
       const res = await createPayroll({
         ...form,
@@ -70,10 +66,9 @@ const PayrollProcessing = () => {
         basicPay: Number(form.basicPay),
         hra: Number(form.hra),
         deductions: Number(form.deductions),
-        netSalary: Number(form.netSalary),
       });
       if (res.success) {
-        setSuccess("Payroll record created!");
+        toast.success("Payroll record created!");
         setShowModal(false);
         setForm({
           employeeId: "",
@@ -82,11 +77,12 @@ const PayrollProcessing = () => {
           basicPay: "",
           hra: "",
           deductions: "",
-          netSalary: "",
         });
+        const payRes = await getMyPayroll();
+        if (payRes.success) setRecords(payRes.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create payroll");
+      toast.error(err.response?.data?.message || "Failed to create payroll");
     }
   };
 
@@ -110,8 +106,6 @@ const PayrollProcessing = () => {
           </button>
         )}
       </div>
-
-      {success && <div className="alert alert-success">{success}</div>}
 
       <div className="card">
         {records.length === 0 ? (
@@ -170,7 +164,6 @@ const PayrollProcessing = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create Payroll Record</h2>
-            {error && <div className="alert alert-error">{error}</div>}
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>Employee</label>
@@ -242,16 +235,6 @@ const PayrollProcessing = () => {
                     type="number"
                     value={form.deductions}
                     onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Net Salary</label>
-                  <input
-                    name="netSalary"
-                    type="number"
-                    value={form.netSalary}
-                    onChange={handleChange}
-                    required
                   />
                 </div>
               </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { getMyLeaves, applyLeave } from "../services/api";
 import { CalendarIcon, PlusIcon } from "../components/ui/Icons";
+import { toast } from "react-toastify";
 
 const Leaves = () => {
   const [leaves, setLeaves] = useState([]);
@@ -9,8 +10,6 @@ const Leaves = () => {
   const [leaveType, setLeaveType] = useState("casual");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const fetchLeaves = async () => {
     try {
@@ -34,12 +33,10 @@ const Leaves = () => {
 
   const handleApply = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     try {
       const res = await applyLeave({ leaveType, startDate, endDate });
       if (res.success) {
-        setSuccess("Leave applied successfully!");
+        toast.success("Leave applied successfully!");
         setShowModal(false);
         setLeaveType("casual");
         setStartDate("");
@@ -47,7 +44,7 @@ const Leaves = () => {
         fetchLeaves();
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to apply");
+      toast.error(err.response?.data?.message || "Failed to apply");
     }
   };
 
@@ -62,8 +59,6 @@ const Leaves = () => {
           <PlusIcon size={16} /> Apply Leave
         </button>
       </div>
-
-      {success && <div className="alert alert-success">{success}</div>}
 
       <div className="stats-grid leaves-stats">
         <div className="stat-card">
@@ -167,7 +162,6 @@ const Leaves = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Apply for Leave</h2>
-            {error && <div className="alert alert-error">{error}</div>}
             <form onSubmit={handleApply}>
               <div className="form-group">
                 <label>Leave Type</label>

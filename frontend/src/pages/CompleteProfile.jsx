@@ -4,13 +4,12 @@ import Layout from "../components/Layout";
 import { useAuth } from "../context/AuthContext";
 import { createEmployeeProfile, getDepartments } from "../services/api";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const [departments, setDepartments] = useState([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
@@ -43,18 +42,16 @@ const CompleteProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
     try {
       const res = await createEmployeeProfile(form);
       if (res.success) {
-        setSuccess("Profile created successfully! Redirecting...");
+        toast.success("Profile created successfully! Redirecting...");
         updateUser({ profileCompleted: true });
         setTimeout(() => navigate("/dashboard"), 1500);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create profile");
+      toast.error(err.response?.data?.message || "Failed to create profile");
     } finally {
       setLoading(false);
     }
@@ -70,9 +67,6 @@ const CompleteProfile = () => {
       </div>
 
       <div className="card" style={{ maxWidth: "560px" }}>
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
-
         <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { checkIn, checkOut } from "../../services/api";
 import { ClockIcon, LogOutIcon } from "../../components/ui/Icons";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const AttendanceTracker = () => {
   const [status, setStatus] = useState("");
@@ -16,11 +17,15 @@ const AttendanceTracker = () => {
     try {
       const res = await checkIn();
       if (res.success) {
-        setStatus("Checked in successfully!");
+        const message = "Checked in successfully!";
+        setStatus(message);
+        toast.success(message);
         setData(res.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Check-in failed");
+      const message = err.response?.data?.message || "Check-in failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading("");
     }
@@ -33,13 +38,15 @@ const AttendanceTracker = () => {
     try {
       const res = await checkOut();
       if (res.success) {
-        setStatus(
-          `Checked out! Working hours: ${res.data.workingHours || "—"} hrs`,
-        );
+        const message = `Checked out! Working hours: ${res.data.workingHours || "—"} hrs`;
+        setStatus(message);
+        toast.success(message);
         setData(res.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Check-out failed");
+      const message = err.response?.data?.message || "Check-out failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading("");
     }

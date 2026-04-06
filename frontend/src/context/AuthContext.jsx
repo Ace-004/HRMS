@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -9,8 +10,8 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
     if (storedUser && token) {
       setUser(JSON.parse(storedUser));
     }
@@ -18,35 +19,39 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginUser = (userData, token) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
+    toast.success(`Welcome back, ${userData.email}`);
 
     // If profile is not completed, redirect to complete profile
     if (!userData.profileCompleted) {
-      navigate('/complete-profile');
+      navigate("/complete-profile");
     } else {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
   const updateUser = (updatedData) => {
     const newUser = { ...user, ...updatedData };
-    localStorage.setItem('user', JSON.stringify(newUser));
+    localStorage.setItem("user", JSON.stringify(newUser));
     setUser(newUser);
   };
 
   const logoutUser = () => {
+    toast.info("Logged out successfully");
     setTimeout(() => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
-      navigate('/');
+      navigate("/");
     }, 600); // 600ms logout delay
   };
 
   return (
-    <AuthContext.Provider value={{ user, loginUser, logoutUser, updateUser, loading }}>
+    <AuthContext.Provider
+      value={{ user, loginUser, logoutUser, updateUser, loading }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

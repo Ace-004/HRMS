@@ -6,6 +6,8 @@ import {
 } from "../../services/api";
 import { PlusIcon, BuildingIcon } from "../../components/ui/Icons";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import { toast } from "react-toastify";
 
 const DepartmentList = () => {
   const [departments, setDepartments] = useState([]);
@@ -13,7 +15,8 @@ const DepartmentList = () => {
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [confirmDepartment, setConfirmDepartment] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchDepartments = async () => {
     setLoading(true);
@@ -31,35 +34,36 @@ const DepartmentList = () => {
     fetchDepartments();
   }, []);
 
-  const handleDelete = async (id, deptName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete the ${deptName} department?`,
-      )
-    )
-      return;
-    setError("");
+  const handleDelete = async () => {
+    if (!confirmDepartment?._id) return;
+    setDeleteLoading(true);
     try {
-      const res = await deleteDepartment(id);
-      if (res.success) fetchDepartments();
+      const res = await deleteDepartment(confirmDepartment._id);
+      if (res.success) {
+        toast.success("Department deleted");
+        fetchDepartments();
+        setConfirmDepartment(null);
+      }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete department");
+      toast.error(err.response?.data?.message || "Failed to delete department");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    setError("");
     try {
       const res = await createDepartment({ name, description });
       if (res.success) {
+        toast.success("Department created successfully");
         setShowModal(false);
         setName("");
         setDescription("");
         fetchDepartments();
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create department");
+      toast.error(err.response?.data?.message || "Failed to create department");
     }
   };
 
@@ -122,7 +126,9 @@ const DepartmentList = () => {
                     padding: "0.2rem 0.5rem",
                     marginTop: "-0.2rem",
                   }}
-                  onClick={() => handleDelete(dept._id, dept.name)}
+                  onClick={() =>
+                    setConfirmDepartment({ _id: dept._id, name: dept.name })
+                  }
                 >
                   Delete
                 </button>
@@ -145,7 +151,6 @@ const DepartmentList = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create Department</h2>
-            {error && <div className="alert alert-error">{error}</div>}
             <form onSubmit={handleCreate}>
               <div className="form-group">
                 <label>Department Name</label>
@@ -180,6 +185,17 @@ const DepartmentList = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(confirmDepartment)}
+        title="Delete Department"
+        message={`Are you sure you want to delete the ${confirmDepartment?.name || "selected"} department?`}
+        confirmText="Delete"
+        confirmVariant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDepartment(null)}
+      />
     </>
   );
 };

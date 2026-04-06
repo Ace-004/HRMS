@@ -7,6 +7,8 @@ import {
   deleteAnnouncement,
 } from "../services/api";
 import { MegaphoneIcon, PlusIcon } from "../components/ui/Icons";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
+import { toast } from "react-toastify";
 
 const Announcements = () => {
   const { user } = useAuth();
@@ -14,7 +16,8 @@ const Announcements = () => {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [error, setError] = useState("");
+  const [confirmAnnouncement, setConfirmAnnouncement] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const isManager = user?.role === "admin" || user?.role === "hr";
 
   const fetchAnnouncements = async () => {
@@ -32,27 +35,34 @@ const Announcements = () => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    setError("");
     try {
       const res = await postAnnouncement({ title, content });
       if (res.success) {
+        toast.success("Announcement posted successfully");
         setShowModal(false);
         setTitle("");
         setContent("");
         fetchAnnouncements();
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to post announcement");
+      toast.error(err.response?.data?.message || "Failed to post announcement");
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this announcement?")) return;
+  const handleDelete = async () => {
+    if (!confirmAnnouncement?._id) return;
+    setDeleteLoading(true);
     try {
-      await deleteAnnouncement(id);
+      await deleteAnnouncement(confirmAnnouncement._id);
+      toast.success("Announcement deleted");
       fetchAnnouncements();
+      setConfirmAnnouncement(null);
     } catch (err) {
-      console.error(err);
+      toast.error(
+        err.response?.data?.message || "Failed to delete announcement",
+      );
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -103,7 +113,9 @@ const Announcements = () => {
               {isManager && (
                 <button
                   className="btn btn-danger btn-sm"
-                  onClick={() => handleDelete(ann._id)}
+                  onClick={() =>
+                    setConfirmAnnouncement({ _id: ann._id, title: ann.title })
+                  }
                 >
                   Delete
                 </button>
@@ -117,7 +129,6 @@ const Announcements = () => {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Post Announcement</h2>
-            {error && <div className="alert alert-error">{error}</div>}
             <form onSubmit={handlePost}>
               <div className="form-group">
                 <label>Title</label>
@@ -154,6 +165,17 @@ const Announcements = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(confirmAnnouncement)}
+        title="Delete Announcement"
+        message={`Are you sure you want to delete "${confirmAnnouncement?.title || "this announcement"}"?`}
+        confirmText="Delete"
+        confirmVariant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmAnnouncement(null)}
+      />
     </Layout>
   );
 };

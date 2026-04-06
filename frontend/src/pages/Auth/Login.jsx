@@ -4,6 +4,7 @@ import { loginEmployee, loginAdmin, loginHr } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { EyeIcon, EyeOffIcon, ShieldIcon } from "../../components/ui/Icons";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const roleConfig = {
   employee: {
@@ -77,9 +78,10 @@ const Login = () => {
         loginUser(userData, response.token);
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Login failed. Please try again.",
-      );
+      const message =
+        err.response?.data?.message || "Login failed. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

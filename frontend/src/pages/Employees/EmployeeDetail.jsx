@@ -114,7 +114,7 @@ const EmployeeDetail = () => {
             <div className="stat-info">
               <div className="label">Salary</div>
               <div className="value" style={{ fontSize: "1rem" }}>
-                ${employee.salary?.toLocaleString() || "N/A"}
+                ₹{employee.salary?.toLocaleString() || "N/A"}
               </div>
             </div>
             <div className="stat-info">

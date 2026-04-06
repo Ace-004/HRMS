@@ -7,7 +7,6 @@ import {
   FiChevronLeft,
   FiClipboard,
   FiClock,
-  FiDollarSign,
   FiEye,
   FiEyeOff,
   FiGrid,
@@ -41,7 +40,23 @@ export const UserIcon = wrapIcon(FiUser);
 export const UsersIcon = wrapIcon(FiUsers);
 export const ClockIcon = wrapIcon(FiClock);
 export const CalendarIcon = wrapIcon(FiCalendar);
-export const DollarIcon = wrapIcon(FiDollarSign);
+export const DollarIcon = ({ size = 20, className = "", ...props }) => (
+  <span
+    className={className}
+    aria-hidden="true"
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: `${size}px`,
+      fontWeight: 700,
+      lineHeight: 1,
+    }}
+    {...props}
+  >
+    ₹
+  </span>
+);
 export const MegaphoneIcon = wrapIcon(FiVolume2);
 export const BuildingIcon = wrapIcon(FiHome);
 export const ClipboardIcon = wrapIcon(FiClipboard);
