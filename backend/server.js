@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use('/',(req,res,next)=>{
-  console.log('entered root ');
+  // console.log('entered root ');
   next();
 })
 

@@ -10,7 +10,7 @@ const protected=async(req,res,next)=>{
     const decoded=verifyToken(header);
     req.user=decoded.userId;
     req.role=decoded.role;
-    console.log(req.user,req.role)
+    // console.log(req.user,req.role)
     next();
   } catch (error) {
     res.status(401).json({success:false,message:"not authorized"});

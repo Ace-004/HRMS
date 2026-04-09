@@ -86,7 +86,7 @@ const getAllEmployees = async (req, res) => {
 
 const getEmployeeById = async (req, res) => {
   const _id = req.params.id;
-  console.log(_id);
+  // console.log(_id);
   // if ((req.role !== "admin" || req.role!=='hr') && req.user !== _id)
   // if (req.user !== _id)
   //   return res
