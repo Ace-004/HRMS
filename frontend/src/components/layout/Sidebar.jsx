@@ -153,17 +153,6 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onCloseMobile }) => {
                 </span>
                 {renderLabel("Employees")}
               </NavLink>
-              <NavLink
-                to="/register"
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? "active" : ""}`
-                }
-              >
-                <span className="icon">
-                  <PlusIcon size={18} />
-                </span>
-                {renderLabel("Register User")}
-              </NavLink>
               <div className="sidebar-section sidebar-label">Management</div>
               <NavLink
                 to="/leave-management"
@@ -177,6 +166,20 @@ const Sidebar = ({ collapsed = false, mobileOpen = false, onCloseMobile }) => {
                 {renderLabel("Leave Requests")}
               </NavLink>
             </>
+          )}
+
+          {role === "admin" && (
+            <NavLink
+              to="/register"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span className="icon">
+                <PlusIcon size={18} />
+              </span>
+              {renderLabel("Register User")}
+            </NavLink>
           )}
         </nav>
 

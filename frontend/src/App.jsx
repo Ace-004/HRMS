@@ -150,7 +150,7 @@ const App = () => {
           }
         />
 
-        {/* Admin + HR (leave management, workforce, onboarding) */}
+        {/* Admin + HR (leave management and workforce) */}
         <Route
           path="/leave-management"
           element={
@@ -178,9 +178,9 @@ const App = () => {
         <Route
           path="/register"
           element={
-            <AdminOrHrRoute>
+            <AdminRoute>
               <Register />
-            </AdminOrHrRoute>
+            </AdminRoute>
           }
         />
 

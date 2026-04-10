@@ -16,12 +16,28 @@ const createEmployeeProfile = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "employee already exists" });
-    const departmentName = department.toLowerCase().trim();
-    const departmentExists = await Department.findOne({ name: departmentName });
-    if (!departmentExists)
+    const departmentName = String(department || "")
+      .toLowerCase()
+      .trim();
+    if (!departmentName) {
+      return res.status(400).json({
+        success: false,
+        message: "department is required",
+      });
+    }
+
+    let departmentExists = await Department.findOne({ name: departmentName });
+
+    // Allow admins to complete onboarding even when no department exists yet.
+    if (!departmentExists && req.role === "admin") {
+      departmentExists = await Department.create({ name: departmentName });
+    }
+
+    if (!departmentExists) {
       return res
         .status(404)
         .json({ success: false, message: "department don't exist" });
+    }
     if (
       req.role === "employee" &&
       requestedSalary !== undefined &&
@@ -38,7 +54,7 @@ const createEmployeeProfile = async (req, res) => {
       User: req.user,
       firstName,
       lastName,
-      Department: departmentExists,
+      Department: departmentExists._id,
       designation,
     };
 
