@@ -3,8 +3,10 @@ import { toast } from "react-toastify";
 
 let sessionExpiredToastShown = false;
 
+console.log(import.meta.env.VITE_API_URL);
+
 const API = axios.create({
-  baseURL: import.meta.BACKEND_API_ARL || "http://localhost:8000/api/v1",
+  baseURL: `${import.meta.env.VITE_API_URL}/api/v1` || "http://localhost:8000/api/v1",
 });
 
 // Request Interceptor: Inject JWT token
