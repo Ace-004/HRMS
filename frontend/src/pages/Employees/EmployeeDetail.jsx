@@ -5,6 +5,7 @@ import {
   getEmployeeById,
   getEmployeeLeaves,
   getEmployeeAttendance,
+  getEmployeePayroll,
 } from "../../services/api";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
@@ -14,21 +15,24 @@ const EmployeeDetail = () => {
   const [employee, setEmployee] = useState(null);
   const [leaves, setLeaves] = useState([]);
   const [attendance, setAttendance] = useState([]);
+  const [payrolls, setPayrolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const [empRes, leaveRes, attRes] = await Promise.all([
+        const [empRes, leaveRes, attRes, payrollRes] = await Promise.all([
           getEmployeeById(id),
           getEmployeeLeaves(id),
           getEmployeeAttendance(id),
+          getEmployeePayroll(id),
         ]);
 
         if (empRes.success) setEmployee(empRes.data);
         if (leaveRes.success) setLeaves(leaveRes.data);
         if (attRes.success) setAttendance(attRes.data);
+        if (payrollRes.success) setPayrolls(payrollRes.data || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch details");
       } finally {
@@ -62,6 +66,11 @@ const EmployeeDetail = () => {
       </Layout>
     );
   }
+
+  const latestPayroll = payrolls[0];
+  const latestPayrollPeriod = latestPayroll
+    ? `${new Date(2000, latestPayroll.month - 1, 1).toLocaleString("default", { month: "long" })} ${latestPayroll.year}`
+    : "N/A";
 
   return (
     <Layout>
@@ -112,15 +121,23 @@ const EmployeeDetail = () => {
               </div>
             </div>
             <div className="stat-info">
-              <div className="label">Salary</div>
+              <div className="label">Latest Payroll</div>
               <div className="value" style={{ fontSize: "1rem" }}>
-                ₹{employee.salary?.toLocaleString() || "N/A"}
+                {latestPayroll?.netSalary
+                  ? `₹${latestPayroll.netSalary.toLocaleString()}`
+                  : "N/A"}
               </div>
             </div>
             <div className="stat-info">
               <div className="label">Joined</div>
               <div className="value" style={{ fontSize: "1rem" }}>
                 {new Date(employee.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+            <div className="stat-info">
+              <div className="label">Payroll Period</div>
+              <div className="value" style={{ fontSize: "1rem" }}>
+                {latestPayrollPeriod}
               </div>
             </div>
           </div>

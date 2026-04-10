@@ -124,14 +124,7 @@ const EmployeeList = () => {
                           : "Inactive"}
                       </span>
                     </td>
-                    <td
-                      data-label="Actions"
-                      style={{
-                        display: "flex",
-                        gap: "0.4rem",
-                        flexWrap: "wrap",
-                      }}
-                    >
+                    <td data-label="Actions" className="employee-actions-cell">
                       <button
                         className="btn btn-ghost btn-sm"
                         onClick={() => navigate(`/employees/${emp._id}`)}
